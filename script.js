@@ -1,12 +1,9 @@
-// 아주 단순한 데모 챗봇입니다.
-// key-value로 간단한 답변을 제공합니다. (실무에서는 API 연동으로 확장하세요)
+// === Orangei OJT Chat (Google Sheets 연동 버전) ===
 
-const KB = [
-  { q: ['반차', '반차 마감', '반차 신청'], a: '반차 신청 마감은 전일 18:00까지 전자결재 제출입니다.' },
-  { q: ['연차', '연차 신청', '연차 마감'], a: '연차는 당일 오전 9시 전까지 제출 권장(협의 가능)입니다.' },
-  { q: ['평가', '평가 일정', '성과평가'], a: '분기 말 주간(마지막 주)에 평가가 진행됩니다. 상세일정은 공지 참조.' },
-  { q: ['복지', '복지 포인트', '복지포인트'], a: '복지포인트는 분기 초에 일괄 지급되며, 만료 30일 전에 안내됩니다.' },
-];
+// 1) 구글 앱스 스크립트 '웹 앱 URL'로 바꾸세요.
+const API_URL = 'https://script.google.com/macros/s/AKfycbwvxg-yuOX8YsdlxcQSezWwIcPWB7oXUoY6-exurrGQvzs5khshblS9N73cKRVmbX-3/exec'; // 예: https://script.google.com/macros/s/XXXXX/exec
+
+let KB = []; // 시트에서 불러온 데이터가 들어갑니다.
 
 const messagesEl = document.getElementById('messages');
 const formEl = document.getElementById('chat-form');
@@ -20,13 +17,51 @@ function addMessage(text, type='bot') {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
+// 간단한 검색(질문/태그/카테고리 포함 부분매칭)
 function findAnswer(text) {
-  const t = text.trim();
-  // 간단 매칭
-  for (const item of KB) {
-    if (item.q.some(k => t.includes(k))) return item.a;
+  const q = text.trim().toLowerCase();
+  if (!q) return '질문을 입력해 주세요.';
+
+  // 1) 완전 일치 우선
+  const exact = KB.find(item => (item.question || '').trim().toLowerCase() === q);
+  if (exact) return exact.answer || '답변이 비어 있습니다.';
+
+  // 2) 부분 일치(질문/태그/카테고리)
+  const hit = KB.find(item => {
+    const question = (item.question || '').toLowerCase();
+    const tags = (item.tags || '').toLowerCase();
+    const category = (item.category || '').toLowerCase();
+    return question.includes(q) || tags.includes(q) || category.includes(q);
+  });
+
+  if (hit) return hit.answer || '답변이 비어 있습니다.';
+
+  // 3) 추천어 제시
+  const suggestions = KB
+    .map(it => it.question)
+    .filter(Boolean)
+    .slice(0, 5)
+    .join(' / ');
+  return `죄송합니다. 해당 질문을 찾지 못했습니다.\n예시: ${suggestions}`;
+}
+
+// 시트에서 FAQ 불러오기
+async function loadFAQ() {
+  addMessage('FAQ 데이터를 불러오는 중입니다… 잠시만요.');
+  try {
+    const res = await fetch(API_URL, { method: 'GET' });
+    const data = await res.json();
+    if (data.ok && Array.isArray(data.items)) {
+      KB = data.items;
+      const count = KB.length;
+      addMessage(`불러오기 완료! 현재 ${count}건의 FAQ가 등록되어 있습니다. 예: "반차 마감은?"`);
+    } else {
+      addMessage('FAQ 데이터를 불러오는 데 실패했습니다. 나중에 다시 시도해 주세요.');
+    }
+  } catch (e) {
+    addMessage('네트워크 오류로 데이터를 가져오지 못했습니다. (관리자에게 문의)');
+    console.error(e);
   }
-  return '죄송합니다. 해당 질문은 DB에 없습니다. 다른 표현으로 시도해 보시거나 HR팀에 문의해 주세요.';
 }
 
 formEl.addEventListener('submit', (e) => {
@@ -37,9 +72,9 @@ formEl.addEventListener('submit', (e) => {
   setTimeout(() => {
     const ans = findAnswer(text);
     addMessage(ans, 'bot');
-  }, 300);
+  }, 200);
   inputEl.value = '';
 });
 
-// 환영 메시지
-addMessage('안녕하세요! Orangei OJT Chat 데모입니다. 예: "반차 마감은?"을 입력해 보세요 😊');
+// 초기 실행
+loadFAQ();

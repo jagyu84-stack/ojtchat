@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orangei OJT Chat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🟠 Orangei OJT Chat</h1>
+    <p class="subtitle">신규 입사자용 간단 FAQ 챗봇 (데모)</p>
+  </header>
+
+  <main>
+    <div id="chat">
+      <div id="messages" aria-live="polite"></div>
+      <form id="chat-form" autocomplete="off">
+        <input id="user-input" type="text" placeholder="질문을 입력하세요 (예: 반차 마감은?)" aria-label="채팅 입력">
+        <button type="submit" id="send-btn">보내기</button>
+      </form>
+    </div>
+    <aside class="tips">
+      <h2>도움말</h2>
+      <ul>
+        <li>예시 질문: <code>반차 마감은?</code>, <code>평가 일정</code>, <code>복지 포인트</code></li>
+        <li>이 페이지는 Netlify에 쉽게 배포할 수 있는 연습용입니다.</li>
+      </ul>
+    </aside>
+  </main>
+
+  <footer>
+    <small>© Orangei HR • Demo</small>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -94,3 +94,18 @@ footer {
   padding: 16px;
   color: #666;
 }
+/* 카테고리 칩 & 추천질문 */
+#helper { margin: 12px 0 0 0; }
+#category-chips, #suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+
+.chip {
+  display: inline-flex; align-items: center; padding: 6px 10px;
+  border: 1px solid #ff8a00; border-radius: 999px; cursor: pointer; background: #fff;
+  font-size: 14px;
+}
+.chip:hover { background: #fff4e6; }
+.suggest {
+  background: #f0f3f6; border: 1px solid #d8dee4; border-radius: 8px;
+  padding: 6px 10px; cursor: pointer; font-size: 14px;
+}
+.suggest:hover { background: #e8ecf1; }

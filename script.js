@@ -9,6 +9,65 @@ const messagesEl = document.getElementById('messages');
 const formEl = document.getElementById('chat-form');
 const inputEl = document.getElementById('user-input');
 
+// === (신규) 카테고리 칩 & 추천질문 ===
+const chipsEl = document.getElementById('category-chips');
+const sugEl = document.getElementById('suggestions');
+
+// 카테고리 추출
+function getCategories(items) {
+  const set = new Set();
+  items.forEach(it => {
+    const c = (it.category || '').trim();
+    if (c) set.add(c);
+  });
+  return Array.from(set).sort();
+}
+
+// 질문 상위 N개 추천(카테고리 기준)
+function getSuggestions(items, category, limit = 6) {
+  const list = items.filter(it => (it.category || '') === category)
+                    .map(it => it.question).filter(Boolean);
+  return list.slice(0, limit);
+}
+
+// 칩/추천 렌더링
+function renderHelper(items) {
+  chipsEl.innerHTML = '';
+  sugEl.innerHTML = '';
+
+  const cats = getCategories(items);
+  if (cats.length === 0) return;
+
+  cats.forEach(cat => {
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.textContent = cat;
+    chip.addEventListener('click', () => {
+      // 추천질문 렌더
+      const qs = getSuggestions(items, cat, 6);
+      sugEl.innerHTML = '';
+      if (qs.length === 0) {
+        const d = document.createElement('div');
+        d.textContent = '추천 질문이 없습니다.';
+        sugEl.appendChild(d);
+      } else {
+        qs.forEach(q => {
+          const s = document.createElement('button');
+          s.className = 'suggest';
+          s.textContent = q;
+          s.addEventListener('click', () => {
+            // 추천 질문 클릭 시, 입력창에 넣고 전송
+            inputEl.value = q;
+            formEl.requestSubmit();
+          });
+          sugEl.appendChild(s);
+        });
+      }
+    });
+    chipsEl.appendChild(chip);
+  });
+}
+
 function addMessage(text, type='bot') {
   const div = document.createElement('div');
   div.className = 'message ' + type;
@@ -53,6 +112,7 @@ async function loadFAQ() {
     const data = await res.json();
     if (data.ok && Array.isArray(data.items)) {
       KB = data.items;
+      renderHelper(KB); // ← 이 줄 추가 (카테고리/추천 렌더)
       const count = KB.length;
       addMessage(`불러오기 완료! 현재 ${count}건의 FAQ가 등록되어 있습니다. 예: "반차 마감은?"`);
     } else {

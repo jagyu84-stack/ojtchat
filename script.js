@@ -1,7 +1,7 @@
 // === Orangei OJT Chat (Google Sheets 연동 버전) ===
 
 // 1) 구글 앱스 스크립트 '웹 앱 URL'로 바꾸세요.
-const API_URL = 'https://script.google.com/macros/s/AKfycbwvxg-yuOX8YsdlxcQSezWwIcPWB7oXUoY6-exurrGQvzs5khshblS9N73cKRVmbX-3/exec'; // 예: https://script.google.com/macros/s/XXXXX/exec
+const API_URL = 'https://script.google.com/macros/s/AKfycbw32eP3EH7AKasP0EISIMgr01srL9Oi-KFZuKUuVrHJPIfvwIJBzKaiBIED27Lo7ws-/exec'; // 예: https://script.google.com/macros/s/XXXXX/exec
 
 let KB = []; // 시트에서 불러온 데이터가 들어갑니다.
 

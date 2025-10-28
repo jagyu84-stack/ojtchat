@@ -114,7 +114,7 @@ async function loadFAQ() {
       KB = data.items;
       renderHelper(KB); // ← 이 줄 추가 (카테고리/추천 렌더)
       const count = KB.length;
-      addMessage(`불러오기 완료! 현재 ${count}건의 FAQ가 등록되어 있습니다. 예: "반차 마감은?"`);
+      addMessage(`불러오기 완료! 현재 ${count}건의 FAQ가 등록되어 있습니다. 예: "반차"`);
     } else {
       addMessage('FAQ 데이터를 불러오는 데 실패했습니다. 나중에 다시 시도해 주세요.');
     }

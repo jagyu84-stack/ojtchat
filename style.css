@@ -110,9 +110,16 @@ footer {
 }
 .suggest:hover { background: #e8ecf1; }
 
-/* 문단간격 띄우기*/
-.message.bot br { line-height: 1.0; }
-.message.bot { white-space: normal; }
-.answer-body br { line-height: 1.0; }
-.answer-body { line-height: 1.65; }
+/* 말풍선 기본 간격을 작게 */
+.message { margin: 6px 0; }
 
+/* 서로 다른 화자 사이는 여백을 더 크게 → 질문/답변 구분 가독성 ↑ */
+.message.user + .message.bot,
+.message.bot + .message.user { margin-top: 14px; }
+
+/* 줄바꿈 라인 간격 살짝 타이트하게 */
+.message.bot br,
+.answer-body br { line-height: 1; }
+
+/* 본문 가독성 */
+.message.bot { line-height: 1.6; }

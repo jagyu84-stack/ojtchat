@@ -23,6 +23,37 @@ function getCategories(items) {
   return Array.from(set).sort();
 }
 
+// === 보기 좋게 줄바꿈/불릿 포맷팅 ===
+function formatForDisplay(text) {
+  if (!text) return '';
+
+  // 이미 HTML 태그가 들어있는 답변은 건드리지 않음
+  const hasHTML = /<[^>]+>/.test(text);
+  if (hasHTML) return text;
+
+  let t = String(text).trim();
+
+  // 1) 기존 개행 보존
+  t = t.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n/g, '<br>');
+
+  // 2) 문장 끝(., ?, !) 뒤에 줄바꿈
+  t = t.replace(/([.!?])(\s|$)/g, '$1<br>');
+
+  // 3) 한국어에서 자주 쓰는 구분(“다.”, “요.”로 끝나고 한 칸 띄우는 경우) 보강
+  //   → 위 규칙(2)에 의해 이미 줄바꿈이 들어가므로 보통 추가 불필요.
+  //   → 문장부호 없이 나열된 경우를 위해 콜론/세미콜론 처리
+  t = t.replace(/(:|；|;)\s*/g, '$1<br>');
+
+  // 4) 숫자 불릿/점 불릿 앞에 줄바꿈 (문장 중간이 아닌 경우만)
+  t = t.replace(/(?<!^)<br>\s*(\d{1,2}\)\s*)/g, '<br>$1');
+  t = t.replace(/(?<!^)(?:<br>)?\s*([•▪▶\-]\s*)/g, '<br>$1');
+
+  // 5) <br>가 너무 많이 연속되면 1개로 축소
+  t = t.replace(/(?:<br>\s*){3,}/g, '<br><br>').replace(/^(<br>\s*)+/, '');
+
+  return t;
+}
+
 // 질문 상위 N개 추천(카테고리 기준)
 function getSuggestions(items, category, limit = 6) {
   const list = items.filter(it => (it.category || '') === category)
@@ -71,7 +102,13 @@ function renderHelper(items) {
 function addMessage(text, type='bot') {
   const div = document.createElement('div');
   div.className = 'message ' + type;
-  div.textContent = text;
+  
+  if (type === 'bot') {
+    div.innerHTML = formatForDisplay(text);   // ← 줄바꿈/불릿 적용
+  } else {
+    div.textContent = text;
+  }
+  
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }

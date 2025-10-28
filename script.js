@@ -23,35 +23,31 @@ function getCategories(items) {
   return Array.from(set).sort();
 }
 
-// === 보기 좋게 줄바꿈/불릿 포맷팅 ===
+// === 보기 좋은 줄바꿈(보수적) ===
 function formatForDisplay(text) {
   if (!text) return '';
-
-  // 이미 HTML 태그가 들어있는 답변은 건드리지 않음
   const hasHTML = /<[^>]+>/.test(text);
-  if (hasHTML) return text;
+  if (hasHTML) return text; // 이미 HTML이면 가공 안함
 
   let t = String(text).trim();
 
-  // 1) 기존 개행 보존
-  t = t.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n/g, '<br>');
+  // (A) 번호목록 패턴이 보이면 각 항목 앞에만 줄바꿈 추가
+  if (/\b1\.\s/.test(t) && /\b2\.\s/.test(t)) {
+    t = t
+      .replace(/\s*(\d+)\.\s*/g, '\n$1. ') // "n. " 앞에만 개행
+      .replace(/^\n/, '');
+  }
 
-  // 2) 문장 끝(., ?, !) 뒤에 줄바꿈
-  t = t.replace(/([.!?])(\s|$)/g, '$1<br>');
+  // (B) 문장 끝에서만 줄바꿈: . ! ? 그리고 한국어 종결 '다.' '요.'(과도 분리 방지)
+  t = t
+    .replace(/([.!?])(?!\s*<\/|$)\s+/g, '$1\n')   // .?! 뒤 한 줄 개행
+    .replace(/(다\.|요\.)(?!\s*<\/|$)\s+/g, '$1\n');
 
-  // 3) 한국어에서 자주 쓰는 구분(“다.”, “요.”로 끝나고 한 칸 띄우는 경우) 보강
-  //   → 위 규칙(2)에 의해 이미 줄바꿈이 들어가므로 보통 추가 불필요.
-  //   → 문장부호 없이 나열된 경우를 위해 콜론/세미콜론 처리
-  t = t.replace(/(:|；|;)\s*/g, '$1<br>');
+  // (C) 공백 정리: 3줄 이상 연속 → 2줄로 축소
+  t = t.replace(/\n{3,}/g, '\n\n');
 
-  // 4) 숫자 불릿/점 불릿 앞에 줄바꿈 (문장 중간이 아닌 경우만)
-  t = t.replace(/(?<!^)<br>\s*(\d{1,2}\)\s*)/g, '<br>$1');
-  t = t.replace(/(?<!^)(?:<br>)?\s*([•▪▶\-]\s*)/g, '<br>$1');
-
-  // 5) <br>가 너무 많이 연속되면 1개로 축소
-  t = t.replace(/(?:<br>\s*){3,}/g, '<br><br>').replace(/^(<br>\s*)+/, '');
-
-  return t;
+  // (D) 최종 HTML 개행
+  return t.replace(/\n/g, '<br>');
 }
 
 // 질문 상위 N개 추천(카테고리 기준)
@@ -102,13 +98,13 @@ function renderHelper(items) {
 function addMessage(text, type='bot') {
   const div = document.createElement('div');
   div.className = 'message ' + type;
-  
+
   if (type === 'bot') {
-    div.innerHTML = formatForDisplay(text);   // ← 줄바꿈/불릿 적용
+    div.innerHTML = formatForDisplay(text);   // ← 줄바꿈 적용(봇만)
   } else {
-    div.textContent = text;
+    div.textContent = text;                   // 사용자 입력은 그대로
   }
-  
+
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }

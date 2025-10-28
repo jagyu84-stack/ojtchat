@@ -1,58 +1,120 @@
-/* 말풍선 구조 */
-#messages { padding: 12px; overflow-y: auto; max-height: 70vh; }
-.message { margin: 6px 0; display: flex; }
-.message.user { justify-content: flex-end; }
-.message.bot { justify-content: flex-start; }
-
-/* 말풍선 여백: Q↔A 구분 */
-.message + .message.bot { margin-top: 16px; }
-
-/* 사용자 말풍선 */
-.message.user .bubble {
-  background: #ffb84d;
-  color: #2d2d2d;
-  padding: 10px 14px;
-  border-radius: 18px 18px 4px 18px;
-  max-width: 75%;
-  line-height: 1.5;
-  white-space: pre-line;
+/* 기본 */
+* { box-sizing: border-box; }
+:root{
+  --oi-orange:#ff8a00;
+  --oi-bg:#fff9f2;
+  --oi-card:#ffffff;
+  --oi-text:#222;
+  --oi-muted:#6b7280;
+  --oi-bubble-bot:#f0f3f6;
+  --oi-bubble-user:#ffe1bf;
+  --oi-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+               Apple SD Gothic Neo, Noto Sans KR, '맑은 고딕', sans-serif;
+  background: var(--oi-bg);
+  color: var(--oi-text);
 }
 
-/* 봇 말풍선 */
-.message.bot .bubble {
-  background: #e9edf2;
-  color: #1e1e1e;
-  padding: 10px 14px;
-  border-radius: 18px 18px 18px 4px;
-  max-width: 75%;
-  line-height: 1.7;
+/* 헤더 */
+.oi-header{
+  background: var(--oi-orange);
+  color:#fff;
+}
+.oi-header__inner{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 22px 16px 18px;
+}
+.oi-dot{
+  width:18px; height:18px; border-radius:50%;
+  background:#ffb24d; display:inline-block; vertical-align:middle; margin-right:10px;
+  box-shadow: inset 0 0 6px rgba(255,255,255,.4);
+}
+.oi-header h1{
+  display:inline-block; margin:0 8px 2px 0; font-weight:800; letter-spacing:.2px;
+}
+.oi-header .subtitle{ margin:0; opacity:.95; }
+
+/* 카테고리/추천 바 */
+.oi-helper{
+  max-width:1200px; margin: 10px auto 0; padding: 10px 16px;
+}
+#category-chips, #suggestions{
+  display:flex; flex-wrap:wrap; gap:8px; margin:8px 0;
+}
+.chip{
+  display:inline-flex; align-items:center; padding:8px 12px;
+  border:1px solid var(--oi-orange); border-radius:999px; background:#fff;
+  cursor:pointer; font-size:14px;
+}
+.chip:hover{ background:#fff4e6; }
+.suggest{
+  background:#f0f3f6; border:1px solid #d8dee4; border-radius:8px;
+  padding:6px 10px; cursor:pointer; font-size:14px;
+}
+.suggest:hover{ background:#e8ecf1; }
+
+/* 메인 그리드 */
+.oi-main{
+  max-width:1200px;
+  margin: 6px auto 0;
+  padding: 0 16px 16px;
+  display:grid; gap:16px; grid-template-columns: 1fr 300px;
+}
+@media (max-width: 1000px){
+  .oi-main{ grid-template-columns: 1fr; }
 }
 
-/* 포맷팅: 줄바꿈 간격 줄이기 */
-.message.bot br { line-height: 1; }
-.message.bot strong { color: #ff6600; }
+/* 카드 공통 */
+.oi-card{
+  background: var(--oi-card);
+  border-radius: 12px;
+  box-shadow: var(--oi-shadow);
+  padding:16px;
+}
 
-/* 입력창 */
-#chat-form {
-  display: flex;
-  padding: 10px;
-  background: #fff8f0;
-  border-top: 1px solid #ddd;
+/* 채팅 */
+#chat{ display:flex; flex-direction:column; min-height: 460px; }
+#messages{
+  flex:1; overflow-y:auto; padding-right:6px; margin-bottom:12px;
 }
-#user-input {
-  flex: 1;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 10px;
-  font-size: 15px;
+
+/* 말풍선 */
+.message{ margin:6px 0; display:inline-block; max-width:82%;
+  padding:10px 12px; border-radius:12px; line-height:1.6; word-break:break-word; }
+.message.user{ background: var(--oi-bubble-user); align-self:flex-end; }
+.message.bot{  background: var(--oi-bubble-bot); }
+
+.message.user + .message.bot,
+.message.bot + .message.user{ margin-top:14px; }
+.message.bot br{ line-height:1; }
+
+/* 폼 */
+.oi-form{ display:flex; gap:8px; }
+#user-input{
+  flex:1; padding:12px; border:1px solid #e5e7eb; border-radius:10px; font-size:16px; outline:none;
 }
-#send-btn {
-  background: #ff8800;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  margin-left: 6px;
-  border-radius: 6px;
-  cursor: pointer;
+#user-input:focus{
+  border-color: var(--oi-orange);
+  box-shadow: 0 0 0 3px rgba(255,138,0,.18);
 }
-#send-btn:hover { background: #ff6600; }
+#send-btn{
+  background: var(--oi-orange); color:#fff; border:none; border-radius:10px;
+  padding: 0 18px; font-size:16px; cursor:pointer; min-width:84px;
+}
+#send-btn:hover{ filter:brightness(.95); }
+
+/* 도움말 */
+.tips h2{ margin:4px 0 10px; }
+.tips code{
+  background:#f7f7f7; padding:2px 6px; border-radius:6px;
+}
+
+/* 푸터 */
+.oi-footer{
+  max-width:1200px; margin: 8px auto 18px; padding: 0 16px; color: var(--oi-muted);
+}

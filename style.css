@@ -109,3 +109,10 @@ footer {
   padding: 6px 10px; cursor: pointer; font-size: 14px;
 }
 .suggest:hover { background: #e8ecf1; }
+
+/* 문단간격 띄우기*/
+.message.bot br { line-height: 1.0; }
+.message.bot { white-space: normal; }
+.answer-body br { line-height: 1.0; }
+.answer-body { line-height: 1.65; }
+

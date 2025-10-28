@@ -1,42 +1,39 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Orangei OJT Chat</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- 상단 오렌지 헤더 -->
-  <header class="oi-header">
-    <div class="oi-header__inner">
-      <div class="oi-dot"></div>
-      <h1>Orangei OJT Chat</h1>
-      <p class="subtitle">신규 입사자용 간단 FAQ 챗봇 (데모)</p>
-    </div>
+  <!-- 오렌지 상단바 -->
+  <header class="app-header">
+    <div class="brand-dot" aria-hidden="true"></div>
+    <h1>Orangei OJT Chat</h1>
+    <p class="subtitle">신규 입사자용 간단 FAQ 챗봇 (데모)</p>
   </header>
 
-  <!-- 카테고리 칩 / 추천질문 -->
-  <section id="helper" class="oi-helper">
+  <!-- 카테고리 칩/추천질문 -->
+  <section id="helper" class="helper">
     <div id="category-chips" aria-label="카테고리 선택 영역"></div>
     <div id="suggestions" aria-label="추천 질문 영역"></div>
   </section>
 
-  <!-- 본문 그리드 -->
-  <main class="oi-main">
-    <!-- 채팅 카드 -->
-    <div id="chat" class="oi-card">
+  <!-- 본문 -->
+  <main class="layout">
+    <section id="chat" class="chat">
       <div id="messages" aria-live="polite"></div>
 
-      <form id="chat-form" autocomplete="off" class="oi-form">
+      <form id="chat-form" autocomplete="off" class="chat-form">
         <input id="user-input" type="text"
-               placeholder="질문을 입력하세요 (예: 반차 마감은?)" aria-label="채팅 입력">
+               placeholder="질문을 입력하세요 (예: 반차 마감은?)"
+               aria-label="채팅 입력" />
         <button type="submit" id="send-btn">보내기</button>
       </form>
-    </div>
+    </section>
 
-    <!-- 도움말 카드 -->
-    <aside class="tips oi-card">
+    <aside class="tips">
       <h2>도움말</h2>
       <ul>
         <li>예시 질문: <code>반차 마감은?</code>, <code>평가 일정</code>, <code>복지 포인트</code></li>
@@ -45,7 +42,7 @@
     </aside>
   </main>
 
-  <footer class="oi-footer">
+  <footer class="app-footer">
     <small>© Orangei HR • Demo</small>
   </footer>
 

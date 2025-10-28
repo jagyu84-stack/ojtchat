@@ -6,40 +6,37 @@
   <title>Orangei OJT Chat</title>
   <link rel="stylesheet" href="style.css">
 </head>
- 
 <body>
   <header>
     <h1>🟠 Orangei OJT Chat</h1>
     <p class="subtitle">신규 입사자용 간단 FAQ 챗봇 (데모)</p>
   </header>
 
-  <!-- 카테고리 필터/추천질문 영역 -->
-<section id="helper">
-  <div id="category-chips" aria-label="카테고리 선택 영역"></div>
-  <div id="suggestions" aria-label="추천 질문 영역"></div>
-</section>
+  <!-- ✅ 카테고리 칩/추천 질문 영역 (script.js가 사용) -->
+  <section id="helper">
+    <div id="category-chips" aria-label="카테고리 선택 영역"></div>
+    <div id="suggestions" aria-label="추천 질문 영역"></div>
+  </section>
 
   <main>
     <div id="chat">
       <div id="messages" aria-live="polite"></div>
       <form id="chat-form" autocomplete="off">
-        <input id="user-input" type="text" placeholder="질문을 입력하세요 (예: 반차)" aria-label="채팅 입력">
+        <input id="user-input" type="text"
+               placeholder="질문을 입력하세요 (예: 반차 마감은?)" aria-label="채팅 입력">
         <button type="submit" id="send-btn">보내기</button>
       </form>
     </div>
+
     <aside class="tips">
       <h2>도움말</h2>
       <ul>
-        <li>예시 질문: <code>반차 마감은?</code>, <code>평가 일정</code>, <code>복지 포인트</code></li>
-        <li>이 페이지는 Netlify에 쉽게 배포할 수 있는 연습용입니다.</li>
+        <li>예시: <code>반차 마감은?</code>, <code>평가 일정</code>, <code>복지 포인트</code></li>
       </ul>
     </aside>
   </main>
 
-  <footer>
-    <small>© Orangei HR • Demo</small>
-  </footer>
-
+  <footer><small>© Orangei HR • Demo</small></footer>
   <script src="script.js"></script>
 </body>
 </html>

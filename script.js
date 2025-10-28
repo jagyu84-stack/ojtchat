@@ -1,173 +1,87 @@
-// === Orangei OJT Chat (Google Sheets 연동 버전) ===
+
+// === Orangei OJT Chat - Google Sheet 기반 FAQ ===
 
 // 1) 구글 앱스 스크립트 '웹 앱 URL'로 바꾸세요.
 const API_URL = 'https://script.google.com/macros/s/AKfycbw32eP3EH7AKasP0EISIMgr01srL9Oi-KFZuKUuVrHJPIfvwIJBzKaiBIED27Lo7ws-/exec'; // 예: https://script.google.com/macros/s/XXXXX/exec
 
-let KB = []; // 시트에서 불러온 데이터가 들어갑니다.
-
-const messagesEl = document.getElementById('messages');
-const formEl = document.getElementById('chat-form');
-const inputEl = document.getElementById('user-input');
-
-// === (신규) 카테고리 칩 & 추천질문 ===
-const chipsEl = document.getElementById('category-chips');
-const sugEl = document.getElementById('suggestions');
-
-// 카테고리 추출
-function getCategories(items) {
-  const set = new Set();
-  items.forEach(it => {
-    const c = (it.category || '').trim();
-    if (c) set.add(c);
-  });
-  return Array.from(set).sort();
+// [2] 데이터 불러오기
+async function loadData() {
+  addMessage("FAQ 데이터를 불러오는 중입니다... 잠시만요.", "bot");
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    if (!data.ok || !data.items) throw new Error("데이터 형식 오류");
+    FAQ = data.items;
+    addMessage(`불러오기 완료! 현재 ${FAQ.length}건의 FAQ가 등록되어 있습니다. 예: "반차 마감은?"`, "bot");
+  } catch (err) {
+    addMessage("⚠ 네트워크 오류로 데이터를 가져오지 못했습니다. (관리자에게 문의)", "bot");
+  }
 }
 
-// === 보기 좋은 줄바꿈(보수적) ===
+// [3] 가독성 좋은 줄바꿈 (적당한 여백 유지)
 function formatForDisplay(text) {
-  if (!text) return '';
-  const hasHTML = /<[^>]+>/.test(text);
-  if (hasHTML) return text; // 이미 HTML이면 가공 안함
+  if (!text) return "";
+  if (/<[^>]+>/.test(text)) return text; // HTML은 그대로
 
-  let t = String(text).trim();
+  let t = text.trim();
 
-  // (A) 번호목록 패턴이 보이면 각 항목 앞에만 줄바꿈 추가
-  if (/\b1\.\s/.test(t) && /\b2\.\s/.test(t)) {
-    t = t
-      .replace(/\s*(\d+)\.\s*/g, '\n$1. ') // "n. " 앞에만 개행
-      .replace(/^\n/, '');
-  }
+  // 숫자 목록: 1. 2. 3. 형태는 줄바꿈으로 분리
+  t = t.replace(/\s*(\d+)\.\s*/g, "<br><strong>$1.</strong> ");
 
-  // (B) 문장 끝에서만 줄바꿈: . ! ? 그리고 한국어 종결 '다.' '요.'(과도 분리 방지)
-  t = t
-    .replace(/([.!?])(?!\s*<\/|$)\s+/g, '$1\n')   // .?! 뒤 한 줄 개행
-    .replace(/(다\.|요\.)(?!\s*<\/|$)\s+/g, '$1\n');
+  // 문장 종결부에서만 줄바꿈 (다. 요. 입니다. 기준)
+  t = t.replace(/([가-힣]{2,10}(다|요|임|니다|됩니다|가능).)\s*/g, "$1<br>");
 
-  // (C) 공백 정리: 3줄 이상 연속 → 2줄로 축소
-  t = t.replace(/\n{3,}/g, '\n\n');
-
-  // (D) 최종 HTML 개행
-  return t.replace(/\n/g, '<br>');
+  // 연속된 <br>은 하나로 축소
+  t = t.replace(/(<br>\s*){3,}/g, "<br><br>");
+  return t;
 }
 
-// 질문 상위 N개 추천(카테고리 기준)
-function getSuggestions(items, category, limit = 6) {
-  const list = items.filter(it => (it.category || '') === category)
-                    .map(it => it.question).filter(Boolean);
-  return list.slice(0, limit);
-}
+// [4] 챗봇 메시지 추가
+function addMessage(text, type = "bot") {
+  const div = document.createElement("div");
+  div.className = "message " + type;
 
-// 칩/추천 렌더링
-function renderHelper(items) {
-  chipsEl.innerHTML = '';
-  sugEl.innerHTML = '';
-
-  const cats = getCategories(items);
-  if (cats.length === 0) return;
-
-  cats.forEach(cat => {
-    const chip = document.createElement('button');
-    chip.className = 'chip';
-    chip.textContent = cat;
-    chip.addEventListener('click', () => {
-      // 추천질문 렌더
-      const qs = getSuggestions(items, cat, 6);
-      sugEl.innerHTML = '';
-      if (qs.length === 0) {
-        const d = document.createElement('div');
-        d.textContent = '추천 질문이 없습니다.';
-        sugEl.appendChild(d);
-      } else {
-        qs.forEach(q => {
-          const s = document.createElement('button');
-          s.className = 'suggest';
-          s.textContent = q;
-          s.addEventListener('click', () => {
-            // 추천 질문 클릭 시, 입력창에 넣고 전송
-            inputEl.value = q;
-            formEl.requestSubmit();
-          });
-          sugEl.appendChild(s);
-        });
-      }
-    });
-    chipsEl.appendChild(chip);
-  });
-}
-
-function addMessage(text, type='bot') {
-  const div = document.createElement('div');
-  div.className = 'message ' + type;
-
-  if (type === 'bot') {
-    div.innerHTML = formatForDisplay(text);   // ← 줄바꿈 적용(봇만)
-  } else {
-    div.textContent = text;                   // 사용자 입력은 그대로
-  }
+  // 질문/답변 간 여백용 래퍼
+  const inner = document.createElement("div");
+  inner.className = "bubble";
+  inner.innerHTML = type === "bot" ? formatForDisplay(text) : text;
+  div.appendChild(inner);
 
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-// 간단한 검색(질문/태그/카테고리 포함 부분매칭)
-function findAnswer(text) {
-  const q = text.trim().toLowerCase();
-  if (!q) return '질문을 입력해 주세요.';
-
-  // 1) 완전 일치 우선
-  const exact = KB.find(item => (item.question || '').trim().toLowerCase() === q);
-  if (exact) return exact.answer || '답변이 비어 있습니다.';
-
-  // 2) 부분 일치(질문/태그/카테고리)
-  const hit = KB.find(item => {
-    const question = (item.question || '').toLowerCase();
-    const tags = (item.tags || '').toLowerCase();
-    const category = (item.category || '').toLowerCase();
-    return question.includes(q) || tags.includes(q) || category.includes(q);
-  });
-
-  if (hit) return hit.answer || '답변이 비어 있습니다.';
-
-  // 3) 추천어 제시
-  const suggestions = KB
-    .map(it => it.question)
-    .filter(Boolean)
-    .slice(0, 5)
-    .join(' / ');
-  return `죄송합니다. 해당 질문을 찾지 못했습니다.\n예시: ${suggestions}`;
-}
-
-// 시트에서 FAQ 불러오기
-async function loadFAQ() {
-  addMessage('FAQ 데이터를 불러오는 중입니다… 잠시만요.');
-  try {
-    const res = await fetch(API_URL, { method: 'GET' });
-    const data = await res.json();
-    if (data.ok && Array.isArray(data.items)) {
-      KB = data.items;
-      renderHelper(KB); // ← 이 줄 추가 (카테고리/추천 렌더)
-      const count = KB.length;
-      addMessage(`불러오기 완료! 현재 ${count}건의 FAQ가 등록되어 있습니다. 예: "휴가"`);
-    } else {
-      addMessage('FAQ 데이터를 불러오는 데 실패했습니다. 나중에 다시 시도해 주세요.');
-    }
-  } catch (e) {
-    addMessage('네트워크 오류로 데이터를 가져오지 못했습니다. (관리자에게 문의)');
-    console.error(e);
+// [5] 질문 검색
+function findAnswer(q) {
+  q = q.trim();
+  const found = FAQ.find(
+    item =>
+      item.question?.includes(q) ||
+      item.tags?.split(",").some(tag => q.includes(tag.trim()))
+  );
+  if (found) {
+    addMessage(found.question, "user");
+    addMessage(found.answer, "bot");
+  } else {
+    addMessage("죄송합니다. 해당 질문을 찾지 못했습니다.", "bot");
   }
 }
 
-formEl.addEventListener('submit', (e) => {
+// [6] DOM 요소
+const form = document.getElementById("chat-form");
+const input = document.getElementById("user-input");
+const messagesEl = document.getElementById("messages");
+let FAQ = [];
+
+// [7] 전송 이벤트
+form.addEventListener("submit", e => {
   e.preventDefault();
-  const text = inputEl.value.trim();
-  if (!text) return;
-  addMessage(text, 'user');
-  setTimeout(() => {
-    const ans = findAnswer(text);
-    addMessage(ans, 'bot');
-  }, 200);
-  inputEl.value = '';
+  const q = input.value.trim();
+  if (!q) return;
+  addMessage(q, "user");
+  findAnswer(q);
+  input.value = "";
 });
 
-// 초기 실행
-loadFAQ();
+// [8] 초기 실행
+loadData();

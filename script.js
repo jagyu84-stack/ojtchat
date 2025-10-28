@@ -168,7 +168,7 @@ async function loadData() {
     if (!data.ok || !data.items) throw new Error('데이터 형식 오류');
 
     FAQ = data.items;
-    addMessage(`불러오기 완료! 현재 ${FAQ.length}건의 FAQ가 등록되어 있습니다. 예: "반차 마감은?"`, 'bot');
+    addMessage(`불러오기 완료! 현재 ${FAQ.length}건의 FAQ가 등록되어 있습니다. 예: "휴가"`, 'bot');
 
     // 카테고리 칩/추천 버튼 표시
     renderHelper(FAQ);

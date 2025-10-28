@@ -138,20 +138,40 @@ function addMessage(text, type = 'bot') {
 }
 
 // ------------------------------------------------------------
-// [F] 질문 검색
-// ------------------------------------------------------------
-function findAnswer(q) {
-  q = q.trim();
-  const found = FAQ.find(
-    item =>
-      item.question?.includes(q) ||
-      (item.tags || '')
-        .split(',')
-        .some(tag => q.includes(tag.trim()))
-  );
-  if (found) {
-    addMessage(found.question, 'user');
-    addMessage(found.answer, 'bot');
+// 소문자/공백 제거 정규화
+function normalize(s) {
+  return (s || '').toLowerCase().replace(/\s+/g, '').trim();
+}
+
+// 가장 적합한 항목 찾기: 정확>태그>카테고리>부분일치
+function findBest(query) {
+  const q = query.trim();
+  const qn = normalize(q);
+
+  // 1) 질문 정확 일치
+  let item = FAQ.find(it => normalize(it.question) === qn);
+  if (item) return item;
+
+  // 2) 태그 매치(여러 단어 중 하나라도 포함)
+  const tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
+  item = FAQ.find(it => tokens.some(t => (it.tags || '').toLowerCase().includes(t)));
+  if (item) return item;
+
+  // 3) 카테고리 포함
+  item = FAQ.find(it => (it.category || '').toLowerCase().includes(q.toLowerCase()));
+  if (item) return item;
+
+  // 4) 질문 부분 포함
+  item = FAQ.find(it => normalize(it.question).includes(qn));
+  return item || null;
+}
+
+// 사용자 입력/버튼 클릭 공통 처리: 사용자 1번 + 답변 1번만 출력
+function handleQuery(q) {
+  addMessage(q, 'user');                   // 사용자 메시지 1회
+  const best = findBest(q);
+  if (best) {
+    addMessage(best.answer || '답변이 비어 있습니다.', 'bot');
   } else {
     addMessage('죄송합니다. 해당 질문을 찾지 못했습니다.', 'bot');
   }
@@ -185,8 +205,7 @@ form.addEventListener('submit', e => {
   e.preventDefault();
   const q = input.value.trim();
   if (!q) return;
-  addMessage(q, 'user');
-  findAnswer(q);
+  handleQuery(q);          // ← 이 한 줄만
   input.value = '';
 });
 

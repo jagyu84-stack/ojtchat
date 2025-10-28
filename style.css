@@ -1,120 +1,124 @@
-/* 기본 */
+/* ========== Base ========== */
 * { box-sizing: border-box; }
 :root{
-  --oi-orange:#ff8a00;
-  --oi-bg:#fff9f2;
-  --oi-card:#ffffff;
-  --oi-text:#222;
-  --oi-muted:#6b7280;
-  --oi-bubble-bot:#f0f3f6;
-  --oi-bubble-user:#ffe1bf;
-  --oi-shadow:0 8px 24px rgba(0,0,0,.08);
+  --orange:#ff8a00;
+  --orange-2:#ff9a22;
+  --bg:#fff9f2;
+  --card:#ffffff;
+  --ink:#222;
+  --ink-soft:#444;
+  --bubble-user:#ffe1bf;
+  --bubble-bot:#f0f3f6;
+  --shadow:0 6px 18px rgba(0,0,0,.08);
 }
+
 html,body{ height:100%; }
 body{
   margin:0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
-               Apple SD Gothic Neo, Noto Sans KR, '맑은 고딕', sans-serif;
-  background: var(--oi-bg);
-  color: var(--oi-text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+               "Apple SD Gothic Neo","Noto Sans KR","맑은 고딕", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
 }
 
-/* 헤더 */
-.oi-header{
-  background: var(--oi-orange);
+/* ========== Header (오렌지 상단바) ========== */
+.app-header{
+  background: var(--orange);
   color:#fff;
+  padding: 20px 16px 18px;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  position:sticky; top:0; z-index:10;
+  box-shadow: 0 2px 10px rgba(0,0,0,.06);
 }
-.oi-header__inner{
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 22px 16px 18px;
+.brand-dot{
+  width:20px; height:20px; border-radius:50%;
+  background:#ffa64d; box-shadow: inset 0 0 0 4px rgba(255,255,255,.6);
 }
-.oi-dot{
-  width:18px; height:18px; border-radius:50%;
-  background:#ffb24d; display:inline-block; vertical-align:middle; margin-right:10px;
-  box-shadow: inset 0 0 6px rgba(255,255,255,.4);
-}
-.oi-header h1{
-  display:inline-block; margin:0 8px 2px 0; font-weight:800; letter-spacing:.2px;
-}
-.oi-header .subtitle{ margin:0; opacity:.95; }
+.app-header h1{ margin:0; font-size:28px; font-weight:800; letter-spacing:.3px; }
+.app-header .subtitle{ width:100%; margin:2px 0 0; opacity:.95; }
 
-/* 카테고리/추천 바 */
-.oi-helper{
-  max-width:1200px; margin: 10px auto 0; padding: 10px 16px;
+/* ========== Helper (칩/추천) ========== */
+.helper{
+  padding: 12px 16px 0;
 }
 #category-chips, #suggestions{
   display:flex; flex-wrap:wrap; gap:8px; margin:8px 0;
 }
 .chip{
-  display:inline-flex; align-items:center; padding:8px 12px;
-  border:1px solid var(--oi-orange); border-radius:999px; background:#fff;
-  cursor:pointer; font-size:14px;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 12px; border:1px solid var(--orange); border-radius:999px;
+  background:#fff; color:var(--ink);
+  font-size:14px; cursor:pointer;
 }
 .chip:hover{ background:#fff4e6; }
 .suggest{
-  background:#f0f3f6; border:1px solid #d8dee4; border-radius:8px;
-  padding:6px 10px; cursor:pointer; font-size:14px;
+  background:#eef2f6; border:1px solid #d8dee4; border-radius:8px;
+  padding:8px 12px; cursor:pointer; font-size:14px;
 }
-.suggest:hover{ background:#e8ecf1; }
+.suggest:hover{ background:#e6ebf0; }
 
-/* 메인 그리드 */
-.oi-main{
-  max-width:1200px;
-  margin: 6px auto 0;
-  padding: 0 16px 16px;
+/* ========== Layout ========== */
+.layout{
   display:grid; gap:16px; grid-template-columns: 1fr 300px;
+  padding: 12px 16px 20px;
 }
-@media (max-width: 1000px){
-  .oi-main{ grid-template-columns: 1fr; }
+@media (max-width: 980px){ .layout{ grid-template-columns: 1fr; }}
+
+/* ========== Chat Card ========== */
+.chat{
+  background: var(--card);
+  border-radius:12px; box-shadow: var(--shadow);
+  padding:16px; min-height: 440px;
+  display:flex; flex-direction:column; gap:10px;
+}
+#messages{
+  flex:1; overflow-y:auto; padding-right:6px; margin-bottom:6px;
 }
 
-/* 카드 공통 */
-.oi-card{
-  background: var(--oi-card);
-  border-radius: 12px;
-  box-shadow: var(--oi-shadow);
+/* 말풍선 (Q/A) */
+.message{
+  margin:6px 0; display:flex; max-width:92%;
+}
+.message.user{ justify-content:flex-end; }
+.message.bot{ justify-content:flex-start; }
+
+.message > div{
+  padding:10px 12px; border-radius:14px;
+  line-height:1.6; word-break:break-word; box-shadow: 0 1px 0 rgba(0,0,0,.03);
+}
+.message.user > div{ background: var(--bubble-user); }
+.message.bot  > div{ background: var(--bubble-bot); }
+
+/* Q↔A 사이 간격을 조금 더 */
+.message.user + .message.bot,
+.message.bot + .message.user { margin-top: 14px; }
+
+/* 봇 문단 줄바꿈 간격 조정 */
+.message.bot br { line-height: 1; }
+
+/* ========== 입력창 ========== */
+.chat-form{ display:flex; gap:8px; }
+#user-input{
+  flex:1; padding:12px; border:1px solid #ddd; border-radius:10px; font-size:16px;
+  outline:none; background:#fff;
+}
+#user-input:focus{ border-color:var(--orange); box-shadow:0 0 0 3px rgba(255,138,0,.2); }
+#send-btn{
+  background:var(--orange); color:#fff; border:none; border-radius:10px;
+  padding:12px 16px; font-size:16px; cursor:pointer;
+}
+#send-btn:hover{ background: var(--orange-2); }
+
+/* ========== Tips Card ========== */
+.tips{
+  background: var(--card);
+  border-radius:12px; box-shadow: var(--shadow);
   padding:16px;
 }
+.tips h2{ margin-top:0; }
+code{ background:#f7f7f7; padding:2px 6px; border-radius:6px; }
 
-/* 채팅 */
-#chat{ display:flex; flex-direction:column; min-height: 460px; }
-#messages{
-  flex:1; overflow-y:auto; padding-right:6px; margin-bottom:12px;
-}
-
-/* 말풍선 */
-.message{ margin:6px 0; display:inline-block; max-width:82%;
-  padding:10px 12px; border-radius:12px; line-height:1.6; word-break:break-word; }
-.message.user{ background: var(--oi-bubble-user); align-self:flex-end; }
-.message.bot{  background: var(--oi-bubble-bot); }
-
-.message.user + .message.bot,
-.message.bot + .message.user{ margin-top:14px; }
-.message.bot br{ line-height:1; }
-
-/* 폼 */
-.oi-form{ display:flex; gap:8px; }
-#user-input{
-  flex:1; padding:12px; border:1px solid #e5e7eb; border-radius:10px; font-size:16px; outline:none;
-}
-#user-input:focus{
-  border-color: var(--oi-orange);
-  box-shadow: 0 0 0 3px rgba(255,138,0,.18);
-}
-#send-btn{
-  background: var(--oi-orange); color:#fff; border:none; border-radius:10px;
-  padding: 0 18px; font-size:16px; cursor:pointer; min-width:84px;
-}
-#send-btn:hover{ filter:brightness(.95); }
-
-/* 도움말 */
-.tips h2{ margin:4px 0 10px; }
-.tips code{
-  background:#f7f7f7; padding:2px 6px; border-radius:6px;
-}
-
-/* 푸터 */
-.oi-footer{
-  max-width:1200px; margin: 8px auto 18px; padding: 0 16px; color: var(--oi-muted);
+/* ========== Footer ========== */
+.app-footer{
+  text-align:center; padding:16px; color:#666;
 }
